@@ -14,7 +14,7 @@ void delay(int volatile count) {
 }
 
 int main(void) {
-	IO_Handle_t LEDGPIO;
+	GPIO_Handle_t LEDGPIO;
 	LEDGPIO.pGPIOx = GPIOC;
 
 	LEDGPIO.GPIO_PinConfig.GPIO_PinNumber = 13;

@@ -20,9 +20,26 @@
 #define GPIO_PIN_RESET					RESET
 #define ERROR							1
 #define OK								0
+
+
 /*
- * base addresses of flash and SRAM
+ * PROCESSOR SPECIFIC DETAILS/MEMORY ADDRESSES		--START
  */
+
+
+// NVIC Interrupt Enable/Disable
+#define P_NVIC_ISER_BASEREG				(_vo uint32_t*)(0xE000E100)
+#define P_NVIC_ICER_BASEREG				(_vo uint32_t*)(0XE000E180)
+
+// IRQ Priority Register Base Register
+#define P_NVIC_IPR_BASEREG				(_vo uint32_t*)(0xE000E400)
+
+/*
+ * PERIPHERAL SPECIFIC DETAILS/MEMORY ADDRESS 		--START
+ */
+
+
+/* base addresses of flash and SRAM */
 #define FLASH_BASEADDR					(0x08000000U)
 #define SRAM_BASEADDR 					(0x20000000U)
 
@@ -64,23 +81,14 @@
 
 typedef struct {
 	// GPIO Registers
-	_vo uint32_t GPIO_CRL; 				/* Config for Pins 1->7 w/ IO mode*/
-	_vo uint32_t GPIO_CRH; 				/* Config for Pins 8->15 w/ IO mode*/
-	_vo uint32_t GPIO_IDR; 				/* Input Data Register*/
-	_vo uint32_t GPIO_ODR; 				/* Output Data Register*/
-	_vo uint32_t GPIO_BSRR; 			/* Bit Set/Reset Register*/
-	_vo uint32_t GPIO_BRR; 				/* Another Bit Reset?? Confused a bit on why there's two*/
-	_vo uint32_t GPIO_LCKR; 			/* Cannot change port config till reset.*/
-
-	// AFIO Registers
-	_vo uint32_t AFIO_EVCR; 			/* used for Cortex EVENTOUT (SEV instr. to wakeup another MCU?)*/
-	_vo uint32_t AFIO_MAPR; 			/* Remapping Fxns*/
-	_vo uint32_t AFIO_EXTICR1;		 	/* EXTI0-3 	CHOOSE THE PORT*/
-	_vo uint32_t AFIO_EXTICR2; 			/* EXTI4-7	CHOOSE THE PORT*/
-	_vo uint32_t AFIO_EXTICR3; 			/* EXTI8-11	CHOOSE THE PORT*/
-	_vo uint32_t AFIO_EXTICR4;			/* EXTI12-15	CHOOSE THE PORT*/
-	_vo uint32_t AFIO_MAPR2;			/* Remapping Fxns*/
-} IO_RegDef_t;
+	_vo uint32_t CRL; 				/* Config for Pins 1->7 w/ IO mode */
+	_vo uint32_t CRH; 				/* Config for Pins 8->15 w/ IO mode */
+	_vo uint32_t IDR; 				/* Input Data Register */
+	_vo uint32_t ODR; 				/* Output Data Register */
+	_vo uint32_t BSRR; 				/* Bit Set/Reset Register */
+	_vo uint32_t BRR; 				/* Another Bit Reset?? Confused a bit on why there's two */
+	_vo uint32_t LCKR; 				/* Cannot change port config till reset. */
+} GPIO_RegDef_t;
 
 typedef struct {
 	_vo uint32_t CR;
@@ -104,18 +112,27 @@ typedef struct {
 	_vo uint32_t PR;
 } EXTI_RegDef_t;
 
+typedef struct {
+	// AFIO Registers
+	_vo uint32_t AFIO_EVCR; 			/* used for Cortex EVENTOUT (SEV instr. to wakeup another MCU?) */
+	_vo uint32_t AFIO_MAPR; 			/* Remapping Fxns */
+	_vo uint32_t AFIO_EXTICR[4];		/* Choose Ports to connect to EXTI Lines */
+	_vo uint32_t AFIO_MAPR2;			/* Remapping Fxns */
+} AFIO_RegDef_t;
+
 
 // Peripheral Definitions (structs stored at base address of peripherals)
-#define GPIOA 							((IO_RegDef_t*)GPIOA_BASEADDR)
-#define GPIOB 							((IO_RegDef_t*)GPIOB_BASEADDR)
-#define GPIOC 							((IO_RegDef_t*)GPIOC_BASEADDR)
-#define GPIOD 							((IO_RegDef_t*)GPIOD_BASEADDR)
-#define GPIOE 							((IO_RegDef_t*)GPIOE_BASEADDR)
-#define GPIOF 							((IO_RegDef_t*)GPIOF_BASEADDR)
-#define GPIOG 							((IO_RegDef_t*)GPIOG_BASEADDR)
+#define GPIOA 							((GPIO_RegDef_t*)GPIOA_BASEADDR)
+#define GPIOB 							((GPIO_RegDef_t*)GPIOB_BASEADDR)
+#define GPIOC 							((GPIO_RegDef_t*)GPIOC_BASEADDR)
+#define GPIOD 							((GPIO_RegDef_t*)GPIOD_BASEADDR)
+#define GPIOE 							((GPIO_RegDef_t*)GPIOE_BASEADDR)
+#define GPIOF 							((GPIO_RegDef_t*)GPIOF_BASEADDR)
+#define GPIOG 							((GPIO_RegDef_t*)GPIOG_BASEADDR)
 
 #define RCC								((RCC_RegDef_t*)RCC_BASEADDR)
 #define EXTI							((EXTI_RegDef_t*)EXTI_BASEADDR)
+#define AFIO							((AFIO_RegDef_t*)AFIO_BASEADDR)
 
 // GPIO Register Reset
 #define GPIOA_REG_RESET()				do { RCC->APB2RSTR |= (1U << 2); RCC->APB2RSTR &= ~(1U << 2); } while (0)
@@ -129,6 +146,10 @@ typedef struct {
 // EXTI Line Enable
 #define EXTI_LINE_ENABLE_FT(num) 		(EXTI->FTSR |= (1U << num))
 #define EXTI_LINE_ENABLE_RT(num) 		(EXTI->RTSR |= (1U << num))
+
+//Clock Enable AFIO
+#define AFIO_PCLK_EN()					(RCC->APB2ENR |= (1U))
+#define AFIO_PCLK_DI()					(RCC->APB2ENR &= ~(1U))
 
 
 // Clock Enables for GPIO
@@ -176,6 +197,16 @@ typedef struct {
 #define USART3_PCLK_DI()				(RCC->APB1ENR &= ~(1U << 18))
 #define UART4_PCLK_DI()					(RCC->APB1ENR &= ~(1U << 19))
 #define UART5_PCLK_DI()					(RCC->APB1ENR &= ~(1U << 20))
+
+// EXTI Line IRQ Number
+#define IRQ_NO_EXTI0					6
+#define IRQ_NO_EXTI1					7
+#define IRQ_NO_EXTI2					8
+#define IRQ_NO_EXTI3					9
+#define IRQ_NO_EXTI4					10
+#define IRQ_NO_EXTI9_5					23
+#define IRQ_NO_EXTI15_10				40
+
 
 
 #endif /* INC_STM32F103XX_H_ */
