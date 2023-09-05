@@ -16,13 +16,12 @@ typedef struct {
 	uint8_t GPIO_PinNumber;				// Possible Values from 1-15 for stm32f103xx
 	uint8_t GPIO_PinModeY; 				// Possible Values from @GPIO_PIN_MODE
 	uint8_t GPIO_PinConfig;				// Possible Values from @GPIO_PINCONFIG_VALUES
-//	uint8_t GPIO_PinOPCtrlType;			// Possible Values from @GPIO_OUTPUT_TYPE_CTRL
-//	uint8_t GPIO_PinAltFxnMode;
+//	uint8_t GPIO_PinAltFxnMode;  		// Will Be implemented later
 } GPIO_PinConfig_t;
 
 typedef struct {
 //	pointer to base address of GPIO periph
-	IO_RegDef_t *pGPIOx;
+	GPIO_RegDef_t *pGPIOx;
 	GPIO_PinConfig_t GPIO_PinConfig;
 } GPIO_Handle_t;
 
@@ -72,20 +71,20 @@ typedef struct {
 
 // GPIO Config
 uint8_t GPIO_Init(GPIO_Handle_t *pGPIOHandle);
-uint8_t GPIO_DeInit(GPIO_RegDef_t *pGPIOx);
+void GPIO_DeInit(GPIO_RegDef_t *pGPIOx);
 
-uint8_t GPIO_PCLKControl(GPIO_RegDef_t *pGPIOx, uint8_t EnOrDi);
-uint8_t GPIO_ToggleOutputPin(GPIO_RegDef_t *pGPIOx, uint8_t PinNumber);
+void GPIO_PCLKControl(GPIO_RegDef_t *pGPIOx, uint8_t EnOrDi);
+void GPIO_ToggleOutputPin(GPIO_RegDef_t *pGPIOx, uint8_t PinNumber);
 
 // GPIO IO
 uint8_t GPIO_ReadFromInputPin(GPIO_RegDef_t *pGPIOx, uint8_t PinNumber);
 uint16_t GPIO_ReadFromInputPort(GPIO_RegDef_t *pGPIOx);
-uint8_t GPIO_WriteToOutputPin(GPIO_RegDef_t *pGPIOx, uint8_t PinNumber, uint8_t value);
-uint8_t GPIO_WriteToOutputPort(GPIO_RegDef_t *pGPIOx, uint16_t value);
+void GPIO_WriteToOutputPin(GPIO_RegDef_t *pGPIOx, uint8_t PinNumber, uint8_t value);
+void GPIO_WriteToOutputPort(GPIO_RegDef_t *pGPIOx, uint16_t value);
 
 // GPIO Interrupt stuff
 uint8_t GPIO_IRQConfig(uint8_t IRQNumber, uint8_t IRQPriority, uint8_t EnOrDi);
-uint8_t GPIO_IRQHandling(uint8_t PinNumber);
+void GPIO_IRQHandling(uint8_t PinNumber);
 
 
 
